@@ -40,9 +40,13 @@ class HydrateWendaDataFeed extends Command
      */
     public function handle()
     {
+        $this->comment(PHP_EOL . 'DataStudio Feed started' . PHP_EOL);
+
         // Retrieve spreadsheet
         $spreadsheetId = config('services.wenda.google_spreadsheet');
         $dataFeed = Sheets::spreadsheet($spreadsheetId)->sheet('data');
+
+        $this->line('→ Retrieve Google Spreadsheet ... <info>✔</info>');
 
         // Clear the sheet
         $dataFeed->clear();
@@ -53,6 +57,8 @@ class HydrateWendaDataFeed extends Command
         // Append data to the sheet
         $data = PostDataFeed::collection($posts)->toArray(request());
 
+        $this->line('→ Processing new data from DB ... <info>✔</info>');
+
         if (sizeof($data) > 0) {
             $keys = array_keys($data[0]);
             $dataFeed->append([$keys]);
@@ -60,6 +66,8 @@ class HydrateWendaDataFeed extends Command
 
         $dataFeed->append($data);
 
-        $this->info(PHP_EOL . "Se exportaron {$posts->count()} registros.");
+        $this->line('→ Publishing new data ... <info>✔</info>');
+
+        $this->info(PHP_EOL . "Done. {$posts->count()} rows were exported.");
     }
 }
